@@ -74,10 +74,31 @@ app.delete('/tasks/:id', async (req, res) => {
 });
 
 /***********************Labb 2 ***********************/
-/* Här skulle det vara lämpligt att skriva en funktion som likt post eller delete tar kan hantera PUT- eller PATCH-anrop (du får välja vilket, läs på om vad som verkar mest vettigt för det du ska göra) för att kunna markera uppgifter som färdiga. Den nya statusen - completed true eller falase - kan skickas i förfrågans body (req.body) tillsammans med exempelvis id så att man kan söka fram en given uppgift ur listan, uppdatera uppgiftens status och till sist spara ner listan med den uppdaterade uppgiften */
+/* Här skulle det vara lämpligt att skriva en funktion som likt post eller delete tar kan hantera
+ PUT- eller PATCH-anrop (du får välja vilket, läs på om vad som verkar mest vettigt för det du ska göra) 
+ för att kunna markera uppgifter som färdiga. Den nya statusen - completed true eller falase -
+  kan skickas i förfrågans body (req.body) tillsammans med exempelvis id så att man kan söka fram en given 
+  uppgift ur listan, uppdatera uppgiftens status och till sist spara ner listan med den uppdaterade uppgiften */
 
 /* Observera att all kod rörande backend för labb 2 ska skrivas i denna fil och inte i app.node.js. App.node.js är bara till för exempel från lektion 5 och innehåller inte någon kod som används vidare under lektionerna. */
 /***********************Labb 2 ***********************/
+
+/* psuedo
+app.patch/put(tasks, async (req, res) => {
+  try
+    kontrollera parameter id
+    kontrollera parameter completed
+    listbuffer vänta svar json
+    finns uppgiften?
+    är completed true eller false?
+    patch/put så att den blir true/false
+      res(den är ändrad)
+  else
+    finns inte uppgiften
+    error uppgiften finns inte
+  else
+    annat problem
+})
 
 /* Med app.listen säger man åte servern att starta. Första argumentet är port - dvs. det portnummer man vill att servern ska köra på. Det sattes till 5000 på rad 9. Det andra argumentet är en anonym arrow-funktion som körs när servern har lyckats starta. Här skrivs bara ett meddelande ut som berättar att servern kör, så att man får feedback på att allt körts igång som det skulle. */
 app.listen(PORT, () => console.log('Server running on http://localhost:5000'));
