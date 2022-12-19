@@ -127,7 +127,16 @@ g
 
 
 
-  
+  skapa en getCompleted metod liknande den getID i förra labben
+  function getCompleted(task){
+    variabel = ID = int
+    variabel = isCompleted = True/False
+    om completed = True
+      kolla ID = id från task
+    returnera  task[ID]
+    
+
+  }
   
   */
 }
