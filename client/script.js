@@ -188,16 +188,7 @@ function renderList() {
     /* Koll om det finns någonting i tasks och om det är en array med längd större än 0 */
     if (tasks && tasks.length > 0) {
       /* Om tasks är en lista som har längd större än 0 loopas den igenom med forEach. forEach tar, likt then, en callbackfunktion. Callbackfunktionen tar emot namnet på varje enskilt element i arrayen, som i detta fall är ett objekt innehållande en uppgift.  */
-      tasks.forEach((task) => {
-        /* Om vi bryter ned nedanstående rad får vi något i stil med:
-        1. todoListElement: ul där alla uppgifter ska finnas
-        2. insertAdjacentHTML: DOM-metod som gör att HTML kan läggas till inuti ett element på en given position
-        3. "beforeend": positionen där man vill lägga HTML-koden, i detta fall i slutet av todoListElement, alltså längst ned i listan. 
-        4. renderTask(task) - funktion som returnerar HTML. 
-        5. task (objekt som representerar en uppgift som finns i arrayen) skickas in till renderTask, för att renderTask ska kunna skapa HTML utifrån egenskaper hos uppgifts-objektet. 
-        */
-
-        /* Denna kod körs alltså en gång per element i arrayen tasks, dvs. en  gång för varje uppgiftsobjekt i listan. */
+      tasks.forEach((task) => {      
         todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
       });
     }
@@ -218,17 +209,31 @@ function renderTask({ id, title, description, dueDate }) {
   /* Lite kort om vad HTML-koden innehåller. Det mesta är bara struktur och Tailwind-styling enligt eget tycke och smak. Värd att nämna extra är dock knappen, <button>-elementet, en bit ned. Där finns ett onclick-attribut som kopplar en eventlyssnare till klickeventet. Eventlyssnaren här heter onDelete och den får med sig egenskapen id, som vi fått med oss från task-objektet. Notera här att det går bra att sätta parenteser och skicka in id på detta viset här, men man fick inte sätta parenteser på eventlyssnare när de kopplades med addEventListener (som för formulärfälten högre upp i koden). En stor del av föreläsning 3 rörande funktioner och event förklarar varför man inte får sätta parenteser på callbackfunktioner i JavaScriptkod. 
   
   När eventlyssnaren kopplas till knappen här nedanför, görs det däremot i HTML-kod och inte JavaScript. Man sätter ett HTML-attribut och refererar till eventlyssnarfunktionen istället. Då fungerar det annorlunda och parenteser är tillåtna. */
+  
+
+
+
+  
   let html = `
-    <li class="select-none mt-2 py-2 border-b border-amber-300">
+    <li class=" list_items select-none mt-2 py-2 border-b border-amber-300">
       <div class="flex items-center">
         <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
         <div>
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
-          <span><input type="checkbox" class="checkbox"><span/>
+          <span> Completed <input type="checkbox" onclick="updateTask(${id})"id="checkbox"><span/>
         </div>
       </div>`;
 
+  
+ /*let li = document.querySelector('list_items')
+ const checkbox = document.getElementById("checkbox")
+  checkbox.addEventListener("onclick", () => {
+    if(checkbox.checked === true){
+      li.setAttribute("style",  "background-color: rgb(34 197 94)")
+    }
+  })*/
+    
   /* Här har templatesträngen avslutats tillfälligt för att jag bara vill skriva ut kommande del av koden om description faktiskt finns */
 
   description &&
@@ -263,25 +268,13 @@ function deleteTask(id) {
   });
 }
 
-/***********************Labb 2 ***********************/
-/* Här skulle det vara lämpligt att skriva den funktion som angivits som eventlyssnare för när någon markerar en uppgift som färdig. Jag pratar alltså om den eventlyssnare som angavs i templatesträngen i renderTask. Det kan t.ex. heta updateTask. 
-  
-Funktionen bör ta emot ett id som skickas från <li>-elementet.
-*/
+function updateTask(data){
 
-/* Inuti funktionen kan ett objekt skickas till api-metoden update. Objektet ska som minst innehålla id på den uppgift som ska förändras, samt egenskapen completed som true eller false, beroende på om uppgiften markerades som färdig eller ofärdig i gränssnittet. 
+  api.update(data).then((result) => {
 
-Det finns några sätt att utforma det som ska skickas till api.update-metoden. 
+    renderList();
 
-Alternativ 1: objektet består av ett helt task-objekt, som också inkluderar förändringen. Exempel: {id: 1,  title: "x", description: "x", dueDate: "x", completed: true/false}
-Alternativ 2: objektet består bara av förändringarna och id på den uppgift som ska förändras. Exempel: {id: 1, completed: true/false } 
+  })
+}
 
-Om du hittar något annat sätt som funkar för dig, använd för all del det, så länge det uppnår samma sak. :)
-*/
-
-/* Anropet till api.update ska följas av then(). then() behöver, som bör vara bekant vid det här laget, en callbackfunktion som ska hantera det som kommer tillbaka från servern via vår api-klass. Inuti den funktionen bör listan med uppgifter renderas på nytt, så att den nyligen gjorda förändringen syns. */
-
-/***********************Labb 2 ***********************/
-
-/* Slutligen. renderList anropas också direkt, så att listan visas när man först kommer in på webbsidan.  */
 renderList();

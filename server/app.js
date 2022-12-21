@@ -14,6 +14,7 @@ app
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', '*');
     res.header('Access-Control-Allow-Methods', '*');
+    
     next();
   });
 
@@ -73,11 +74,29 @@ app.delete('/tasks/:id', async (req, res) => {
   }
 });
 
-/***********************Labb 2 ***********************/
-/* Här skulle det vara lämpligt att skriva en funktion som likt post eller delete tar kan hantera PUT- eller PATCH-anrop (du får välja vilket, läs på om vad som verkar mest vettigt för det du ska göra) för att kunna markera uppgifter som färdiga. Den nya statusen - completed true eller falase - kan skickas i förfrågans body (req.body) tillsammans med exempelvis id så att man kan söka fram en given uppgift ur listan, uppdatera uppgiftens status och till sist spara ner listan med den uppdaterade uppgiften */
+app.patch('/tasks/:id', async (req, res) => {
+  try {
+    const newData = req.body
+    const id = req.params.id;
+    const listBuffer = await fs.readFile('./tasks.json');
+    const currentTasks = JSON.parse(listBuffer);
+    if (currentTasks.length > 0) {
+      let completedTask = currentTasks.filter((tasks) => tasks.id == id);
+      if(completedTask.length == 1){
+        Object.assign(completedTask[0], newData);
+        const completedTaskList = currentTasks.filter(tasks => tasks.id != id);
+        await fs.writeFile('./tasks.json', JSON.stringify([...completedTaskList, completedTask[0]]));
+      } 
+        res.send({ message: `Uppgift med id ${id} har avklarats` });
+    } else {
 
-/* Observera att all kod rörande backend för labb 2 ska skrivas i denna fil och inte i app.node.js. App.node.js är bara till för exempel från lektion 5 och innehåller inte någon kod som används vidare under lektionerna. */
-/***********************Labb 2 ***********************/
+      res.status(404).send({ error: 'Ingen uppgift' });
+    }
+    
+  } catch (error) {
+    /* Om något annat fel uppstår, skickas statuskod 500, dvs. ett generellt serverfel, tillsammans med information om felet.  */
+    res.status(500).send({ error: error.stack });
+  }
+});
 
-/* Med app.listen säger man åte servern att starta. Första argumentet är port - dvs. det portnummer man vill att servern ska köra på. Det sattes till 5000 på rad 9. Det andra argumentet är en anonym arrow-funktion som körs när servern har lyckats starta. Här skrivs bara ett meddelande ut som berättar att servern kör, så att man får feedback på att allt körts igång som det skulle. */
 app.listen(PORT, () => console.log('Server running on http://localhost:5000'));
