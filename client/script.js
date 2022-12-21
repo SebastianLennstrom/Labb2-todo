@@ -225,6 +225,7 @@ function renderTask({ id, title, description, dueDate }) {
         <div>
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
+          <span><input type="checkbox" class="checkbox"><span/>
         </div>
       </div>`;
 
