@@ -173,45 +173,20 @@ function renderList() {
   /* Logg som visar att vi hamnat i render-funktionen */
   console.log('rendering');
 
-  /* Anrop till getAll hos vårt api-objekt. Metoden skapades i Api.js och har hand om READ-förfrågningar mot vårt backend. */
   api.getAll().then((tasks) => {
-    /* När vi fått svaret från den asynkrona funktionen getAll, körs denna anonyma arrow-funktion som skickats till then() */
-
-    /* Här används todoListElement, en variabel som skapades högt upp i denna fil med koden const todoListElement = document.getElementById('todoList');
-     */
-
-    /* Först sätts dess HTML-innehåll till en tom sträng. Det betyder att alla befintliga element och all befintlig text inuti todoListElement tas bort. Det kan nämligen finnas list-element däri när denna kod körs, men de tas här bort för att hela listan ska uppdateras i sin helhet. */
     todoListElement.innerHTML = '';
 
-    /* De hämtade uppgifterna från servern via api:et getAll-funktion får heta tasks, eftersom callbackfunktionen som skickades till then() har en parameter som är döpt så. Det är tasks-parametern som är innehållet i promiset. */
-
-    /* Koll om det finns någonting i tasks och om det är en array med längd större än 0 */
-    if (tasks && tasks.length > 0) {
+    if (tasks && tasks.completed != true && tasks.length > 0) {
       /* Om tasks är en lista som har längd större än 0 loopas den igenom med forEach. forEach tar, likt then, en callbackfunktion. Callbackfunktionen tar emot namnet på varje enskilt element i arrayen, som i detta fall är ett objekt innehållande en uppgift.  */
       tasks.forEach((task) => {      
         todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
-      });
+      
+      });      
     }
   });
 }
 
-/* renderTask är en funktion som returnerar HTML baserat på egenskaper i ett uppgiftsobjekt. 
-Endast en uppgift åt gången kommer att skickas in här, eftersom den anropas inuti en forEach-loop, där uppgifterna loopas igenom i tur och ordning.  */
-
-/* Destructuring används för att endast plocka ut vissa egenskaper hos uppgifts-objektet. Det hade kunnat stå function renderTask(task) {...} här - för det är en hel task som skickas in - men då hade man behövt skriva task.id, task.title osv. på alla ställen där man ville använda dem. Ett trick är alltså att "bryta ut" dessa egenskaper direkt i funktionsdeklarationen istället. Så en hel task skickas in när funktionen anropas uppe i todoListElement.insertAdjacentHTML("beforeend", renderTask(task)), men endast vissa egenskaper ur det task-objektet tas emot här i funktionsdeklarationen. */
 function renderTask({ id, title, description, dueDate }) {
-  /* Baserat på inskickade egenskaper hos task-objektet skapas HTML-kod med styling med hjälp av tailwind-klasser. Detta görs inuti en templatestring  (inom`` för att man ska kunna använda variabler inuti. Dessa skrivs inom ${}) */
-
-  /*
-  Det som skrivs inom `` är vanlig HTML, men det kan vara lite svårt att se att det är så. Om man enklare vill se hur denna kod fungerar kan man klistra in det i ett HTML-dokument, för då får man färgkodning och annat som kan underlätta. Om man gör det kommer dock ${...} inte innehålla texten i variabeln utan bara skrivas ut som det är. Men det är lättare att felsöka just HTML-koden på det sättet i alla fall. 
-  */
-
-  /* Lite kort om vad HTML-koden innehåller. Det mesta är bara struktur och Tailwind-styling enligt eget tycke och smak. Värd att nämna extra är dock knappen, <button>-elementet, en bit ned. Där finns ett onclick-attribut som kopplar en eventlyssnare till klickeventet. Eventlyssnaren här heter onDelete och den får med sig egenskapen id, som vi fått med oss från task-objektet. Notera här att det går bra att sätta parenteser och skicka in id på detta viset här, men man fick inte sätta parenteser på eventlyssnare när de kopplades med addEventListener (som för formulärfälten högre upp i koden). En stor del av föreläsning 3 rörande funktioner och event förklarar varför man inte får sätta parenteser på callbackfunktioner i JavaScriptkod. 
-  
-  När eventlyssnaren kopplas till knappen här nedanför, görs det däremot i HTML-kod och inte JavaScript. Man sätter ett HTML-attribut och refererar till eventlyssnarfunktionen istället. Då fungerar det annorlunda och parenteser är tillåtna. */
-  
-
-
 
   
   let html = `
@@ -222,39 +197,48 @@ function renderTask({ id, title, description, dueDate }) {
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
           <span> Completed <input type="checkbox" onclick="updateTask(${id})"id="checkbox"><span/>
-        </div>
+          </div>
       </div>`;
-
-  
- /*let li = document.querySelector('list_items')
- const checkbox = document.getElementById("checkbox")
-  checkbox.addEventListener("onclick", () => {
-    if(checkbox.checked === true){
-      li.setAttribute("style",  "background-color: rgb(34 197 94)")
-    }
-  })*/
-    
-  /* Här har templatesträngen avslutats tillfälligt för att jag bara vill skriva ut kommande del av koden om description faktiskt finns */
+      
 
   description &&
-    /* Med hjälp av && kan jag välja att det som står på andra sidan && bara ska utföras om description faktiskt finns.  */
 
-    /* Det som ska göras om description finns är att html-variabeln ska byggas på med HTML-kod som visar det som finns i description-egenskapen hos task-objektet. */
     (html += `
       <p class="ml-8 mt-2 text-xs italic">${description}</p>
   `);
 
-  /* När html-strängen eventuellt har byggts på med HTML-kod för description-egenskapen läggs till sist en sträng motsvarande sluttaggen för <li>-elementet dit. */
   html += `
     </li>`;
-  /***********************Labb 2 ***********************/
-  /* I ovanstående template-sträng skulle det vara lämpligt att sätta en checkbox, eller ett annat element som någon kan klicka på för att markera en uppgift som färdig. Det elementet bör, likt knappen för delete, också lyssna efter ett event (om du använder en checkbox, kolla på exempelvis w3schools vilket element som triggas hos en checkbox när dess värde förändras.). Skapa en eventlyssnare till det event du finner lämpligt. Funktionen behöver nog ta emot ett id, så den vet vilken uppgift som ska markeras som färdig. Det skulle kunna vara ett checkbox-element som har attributet on[event]="updateTask(id)". */
-  /***********************Labb 2 ***********************/
-
-  /* html-variabeln returneras ur funktionen och kommer att vara den som sätts som andra argument i todoListElement.insertAdjacentHTML("beforeend", renderTask(task)) */
   return html;
+
 }
 
+function renderCompletedTask({ id, title, description, dueDate }) {
+
+  
+  let html = `
+    <li class=" bg-lime-500	list_items select-none mt-2 py-2 border-b border-amber-300">
+      <div class="flex items-center">
+        <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
+        <div>
+          <span>${dueDate}</span>
+          <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
+          <span> Completed <input type="checkbox" onclick="updateTask(${id})"id="checkbox" checked><span/>
+          </div>
+      </div>`;
+      
+
+  description &&
+
+    (html += `
+      <p class="ml-8 mt-2 text-xs italic">${description}</p>
+  `);
+
+  html += `
+    </li>`;
+  return html;
+
+}
 /* Funktion för att ta bort uppgift. Denna funktion är kopplad som eventlyssnare i HTML-koden som genereras i renderTask */
 function deleteTask(id) {
   /* Det id som skickas med till deleteTask är taget från respektive uppgift. Eftersom renderTask körs en gång för varje uppgift, och varje gång innehåller en unik egenskap och dess uppgifter, kommer också ett unikt id vara kopplat till respektive uppgift i HTML-listan. Det är det id:t som skickas in hit till deleteTasks. */
@@ -269,12 +253,17 @@ function deleteTask(id) {
 }
 
 function updateTask(data){
-
+  
   api.update(data).then((result) => {
 
     renderList();
 
   })
+}
+
+function sortTasks(){
+  
+
 }
 
 renderList();

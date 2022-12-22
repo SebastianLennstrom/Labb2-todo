@@ -81,13 +81,13 @@ app.patch('/tasks/:id', async (req, res) => {
     const listBuffer = await fs.readFile('./tasks.json');
     const currentTasks = JSON.parse(listBuffer);
     if (currentTasks.length > 0) {
-      let completedTask = currentTasks.filter((tasks) => tasks.id == id);
+      let completedTask = currentTasks.filter((task) => task.id == id);
       if(completedTask.length == 1){
         Object.assign(completedTask[0], newData);
-        const completedTaskList = currentTasks.filter(tasks => tasks.id != id);
+        const completedTaskList = currentTasks.filter(task => task.id != id);
         await fs.writeFile('./tasks.json', JSON.stringify([...completedTaskList, completedTask[0]]));
+        res.send(completedTask)
       } 
-        res.send({ message: `Uppgift med id ${id} har avklarats` });
     } else {
 
       res.status(404).send({ error: 'Ingen uppgift' });
