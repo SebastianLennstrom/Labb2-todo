@@ -1,20 +1,3 @@
-/* Form-element ligger direkt på document-objektet och är globalt. Det betyder att man kan komma åt det utan att hämta upp det via exempelvis document.getElementById. 
-
-Andra element, såsom t.ex. ett div-element behöver hämtas ur HTML-dokumentet för att kunna hämtas i JavaScript. 
-
-Man skulle behöva skriva const todoList = document.getElemenetById("todoList"), för att hämta det elementet och sedan komma åt det via variabeln todoList. För formulär behöver man inte det steget, utan kan direkt använda todoForm (det id- och name-attribut som vi gav form-elementet), utan att man först skapar variabeln och hämtar form-elementet.
-*/
-
-/* På samma sätt kommer man åt alla fält i todoForm via dess name eller id-attribut. Så här kan vi använda title för att nå input-fältet title, som i HTML ser ut såhär: 
-<input type="text" id="title" name="title" class="w-full rounded-md border-yellow-500 border-2 focus-within:outline-none focus:border-yellow-600 px-4 py-2" /> 
-
-Nedan används därför todoForm.[fältnamn] för att sätta eventlyssnare på respektive fält i formuläret.*/
-
-/* Eventen som ska fångas upp är 
-1. När någon ställt muspekaren i inputfältet och trycker på en tangent 
-2. När någon lämnar fältet, dvs. klickar utanför det eller markerar nästa fält. 
-
-För att fånga tangenttryck kan man exempelvis använda eventtypen "keyup" och för att fånga eventet att någon lämnar fältet använder man eventtypen "blur" */
 
 /* Till alla dessa fält och alla dessa typer av event koppplas en och samma eventlyssnare; validateField. Eventlyssnaren är funktionen validateField och den vill ta emot själva fältet som berörs. Eftersom man inte får sätta parenteser efter en eventlyssnare när man skickar in den, får man baka in den i en anonym arrow-function. Man får alltså inte skriva todoForm.title.addEventListener("keyup", validateField(e.target)), utan man måste använda en omslutande funktion för att skicka e.target som argument. Därför används en anonym arrowfunction med bara en rad - att anropa validateField med det argument som den funktionen vill ha.  */
 todoForm.title.addEventListener('keyup', (e) => validateField(e.target));
@@ -122,11 +105,7 @@ function validateField(field) {
   field.previousElementSibling.classList.remove('hidden');
 }
 
-/* Callbackfunktion som används för eventlyssnare när någon klickar på knappen av typen submit */
 function onSubmit(e) {
-  /* Standardbeteendet hos ett formulär är att göra så att webbsidan laddas om när submit-eventet triggas. I denna applikation vill vi fortsätta att köra JavaScript-kod för att behandla formulärets innehåll och om webbsidan skulle ladda om i detta skede skulle det inte gå.   */
-
-  /* Då kan man använda eventets metod preventDefault för att förhindra eventets standardbeteende, där submit-eventets standardbeteende är att ladda om webbsidan.  */
   e.preventDefault();
   /* Ytterligare en koll görs om alla fält är godkända, ifall man varken skrivit i eller lämnat något fält. */
   if (titleValid && descriptionValid && dueDateValid) {
@@ -148,16 +127,7 @@ function saveTask() {
     dueDate: todoForm.dueDate.value,
     completed: false
   };
-  /* Ett objekt finns nu som har egenskaper motsvarande hur vi vill att uppgiften ska sparas ner på servern, med tillhörande värden från formulärets fält. */
 
-  /* Api-objektet, d.v.s. det vi instansierade utifrån vår egen klass genom att skriva const api = new Api("http://localhost:5000/tasks); en bit upp i koden.*/
-
-  /* Vår Api-klass har en create-metod. Vi skapade alltså en metod som kallas create i Api.js som ansvarar för att skicka POST-förfrågningar till vårt eget backend. Denna kommer vi nu åt genom att anropa den hos api-objektet.  */
-
-  /* Create är asynkron och returnerar därför ett promise. När hela serverkommunikationen och create-metoden själv har körts färdigt, kommer then() att anropa. Till then skickas den funktion som ska hantera det som kommer tillbaka från backend via vår egen api-klass.  
-  
-  Callbackfunktionen som används i then() är en anonym arrow-function som tar emot innehållet i det promise som create returnerar och lagrar det i variabeln task. 
-  */
 
   api.create(task).then((task) => {
     /* Task kommer här vara innehållet i promiset. Om vi ska följa objektet hela vägen kommer vi behöva gå hela vägen till servern. Det är nämligen det som skickas med res.send i server/api.js, som api-klassens create-metod tar emot med then, översätter till JSON, översätter igen till ett JavaScript-objekt, och till sist returnerar som ett promise. Nu har äntligen det promiset fångats upp och dess innehåll - uppgiften från backend - finns tillgängligt och har fått namnet "task".  */
@@ -168,25 +138,32 @@ function saveTask() {
   });
 }
 
-/* En funktion som ansvarar för att skriva ut todo-listan i ett ul-element. */
 function renderList() {
-  /* Logg som visar att vi hamnat i render-funktionen */
   console.log('rendering');
 
   api.getAll().then((tasks) => {
     todoListElement.innerHTML = '';
 
-    if (tasks && tasks.completed != true && tasks.length > 0) {
-      /* Om tasks är en lista som har längd större än 0 loopas den igenom med forEach. forEach tar, likt then, en callbackfunktion. Callbackfunktionen tar emot namnet på varje enskilt element i arrayen, som i detta fall är ett objekt innehållande en uppgift.  */
+    if (tasks && tasks.length > 0) {
       tasks.forEach((task) => {      
         todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
-      
       });      
-    }
+    } 
   });
 }
 
-function renderTask({ id, title, description, dueDate }) {
+
+
+function getId(id){
+  for (let i = 0; i < array.length; i++) {
+    if(tasks.id == id){
+      return(tasks.id)
+    }
+    
+  }
+}
+
+function renderTask({ id, title, description, dueDate, completed }) {
 
   
   let html = `
@@ -196,7 +173,7 @@ function renderTask({ id, title, description, dueDate }) {
         <div>
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
-          <span> Completed <input type="checkbox" onclick="updateTask(${id})"id="checkbox"><span/>
+          <span> Completed <input type="checkbox" onclick="updateTask(${id}, ${!completed})"id="checkbox"><span/>
           </div>
       </div>`;
       
@@ -213,48 +190,18 @@ function renderTask({ id, title, description, dueDate }) {
 
 }
 
-function renderCompletedTask({ id, title, description, dueDate }) {
 
-  
-  let html = `
-    <li class=" bg-lime-500	list_items select-none mt-2 py-2 border-b border-amber-300">
-      <div class="flex items-center">
-        <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
-        <div>
-          <span>${dueDate}</span>
-          <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
-          <span> Completed <input type="checkbox" onclick="updateTask(${id})"id="checkbox" checked><span/>
-          </div>
-      </div>`;
-      
-
-  description &&
-
-    (html += `
-      <p class="ml-8 mt-2 text-xs italic">${description}</p>
-  `);
-
-  html += `
-    </li>`;
-  return html;
-
-}
-/* Funktion för att ta bort uppgift. Denna funktion är kopplad som eventlyssnare i HTML-koden som genereras i renderTask */
+ 
 function deleteTask(id) {
-  /* Det id som skickas med till deleteTask är taget från respektive uppgift. Eftersom renderTask körs en gång för varje uppgift, och varje gång innehåller en unik egenskap och dess uppgifter, kommer också ett unikt id vara kopplat till respektive uppgift i HTML-listan. Det är det id:t som skickas in hit till deleteTasks. */
-
-  /* Api-klassen har en metod, remove, som sköter DELETE-anrop mot vårt egna backend */
   api.remove(id).then((result) => {
-    /* När REMOVE-förfrågan är skickad till backend via vår Api-klass och ett svar från servern har kommit, kan vi på nytt anropa renderList för att uppdatera listan. Detta är alltså samma förfarande som när man skapat en ny uppgift - när servern är färdig uppdateras listan så att aktuell information visas. */
 
     renderList();
-    /* Notera att parametern result används aldrig i denna funktion. Vi skickar inte tillbaka någon data från servern vid DELETE-förfrågningar, men denna funktion körs när hela anropet är färdigt så det är fortfarande ett bra ställe att rendera om listan, eftersom vi här i callbackfunktionen till then() vet att den asynkrona funktionen remove har körts färdigt. */
   });
 }
 
-function updateTask(data){
+function updateTask(id, completed){
   
-  api.update(data).then((result) => {
+  api.update(id, completed).then((result) => {
 
     renderList();
 
