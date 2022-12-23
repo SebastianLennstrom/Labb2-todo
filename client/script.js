@@ -143,11 +143,18 @@ function renderList() {
 
   api.getAll().then((tasks) => {
     todoListElement.innerHTML = '';
-
+    let array = [];
     if (tasks && tasks.length > 0) {
-      tasks.forEach((task) => {      
-        todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
-      });      
+      tasks.forEach((task) => {  
+        array.push(task) 
+          array.sort((a, b) => {
+           return new Date(a.dueDate) - new Date(b.dueDate);
+           })
+      });     
+   
+      array.forEach(task => {
+      todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
+      }); 
     } 
   });
 }
@@ -191,6 +198,7 @@ function renderTask({ id, title, description, dueDate, completed }) {
 }
 
 
+
  
 function deleteTask(id) {
   api.remove(id).then((result) => {
@@ -199,18 +207,17 @@ function deleteTask(id) {
   });
 }
 
+
+
 function updateTask(id, completed){
   
   api.update(id, completed).then((result) => {
 
     renderList();
-
   })
 }
 
-function sortTasks(){
-  
 
-}
+
 
 renderList();
