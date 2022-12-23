@@ -151,9 +151,8 @@ function renderList() {
            return new Date(a.dueDate) - new Date(b.dueDate);
            })
       });     
-   
       array.forEach(task => {
-      todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
+        todoListElement.insertAdjacentHTML('beforeend', renderTask(task));
       }); 
     } 
   });
@@ -172,7 +171,7 @@ function getId(id){
 
 function renderTask({ id, title, description, dueDate, completed }) {
 
-  
+  if(completed === false){
   let html = `
     <li class=" list_items select-none mt-2 py-2 border-b border-amber-300">
       <div class="flex items-center">
@@ -180,20 +179,53 @@ function renderTask({ id, title, description, dueDate, completed }) {
         <div>
           <span>${dueDate}</span>
           <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
-          <span> Completed <input type="checkbox" onclick="updateTask(${id}, ${!completed})"id="checkbox"><span/>
+          <span> Completed <input type="checkbox" onclick="updateTask(${id}, ${!completed})"class="checkbox" ><span/>
           </div>
       </div>`;
       
 
-  description &&
+
+
+
+  description && 
 
     (html += `
       <p class="ml-8 mt-2 text-xs italic">${description}</p>
   `);
 
+
   html += `
     </li>`;
-  return html;
+
+    return html;
+
+  } else{
+    let html = `
+    <li class=" list_items select-none mt-2 py-2 border-b border-amber-300 bg-green-200 rounded-md" >
+      <div class="flex items-center ">
+        <h3 class="mb-3 flex-1 text-xl font-bold text-pink-800 uppercase">${title}</h3>
+        <div>
+          <span>${dueDate}</span>
+          <button onclick="deleteTask(${id})" class="inline-block bg-amber-500 text-xs text-amber-900 border border-white px-3 py-1 rounded-md ml-2">Ta bort</button>
+          <span> Completed <input type="checkbox" onclick="updateTask(${id}, ${!completed})"class="checkbox" checked ><span/>
+          </div>
+      </div>`;
+
+  description && 
+
+    (html += `
+      <p class="ml-8 mt-2 text-xs italic">${description}</p>
+  `);
+
+
+  html += `
+    </li>`;
+
+
+    return html;
+  }
+
+  
 
 }
 
@@ -209,6 +241,7 @@ function deleteTask(id) {
 
 
 
+
 function updateTask(id, completed){
   
   api.update(id, completed).then((result) => {
@@ -216,8 +249,6 @@ function updateTask(id, completed){
     renderList();
   })
 }
-
-
 
 
 renderList();
