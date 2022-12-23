@@ -80,15 +80,20 @@ app.patch('/tasks/:id', async (req, res) => {
     const newData = req.body
     const listBuffer = await fs.readFile('./tasks.json');
     const currentTasks = JSON.parse(listBuffer);
-    const completedTask = currentTasks.filter((task) => task.id === taskId);
+      let completedTask = currentTasks.filter((task) => task.id == taskId);
       if(completedTask.length >= 1){
         Object.assign(completedTask[0], newData);
         const completedTaskList = currentTasks.filter(task => task.id != taskId);
         await fs.writeFile('./tasks.json', JSON.stringify([...completedTaskList, completedTask[0]]));
         res.send(completedTask)
-      } 
+      } else {
+     
+
+      res.status(404).send({ error: 'Ingen uppgift' });
+    }
     
   } catch (error) {
+    /* Om något annat fel uppstår, skickas statuskod 500, dvs. ett generellt serverfel, tillsammans med information om felet.  */
     res.status(500).send({ error: error.stack });
   }
 });
