@@ -77,14 +77,14 @@ app.delete('/tasks/:id', async (req, res) => {
 app.patch('/tasks/:id', async (req, res) => {
   try {
     const newData = req.body
-    const id = req.params.id;
+    const taskId = req.params.id;
     const listBuffer = await fs.readFile('./tasks.json');
     const currentTasks = JSON.parse(listBuffer);
     if (currentTasks.length > 0) {
-      let completedTask = currentTasks.filter((task) => task.id == id);
+      const completedTask = currentTasks.filter((task) => task.id === taskId);
       if(completedTask.length == 1){
         Object.assign(completedTask[0], newData);
-        const completedTaskList = currentTasks.filter(task => task.id != id);
+        const completedTaskList = currentTasks.filter(task => task.id != taskId);
         await fs.writeFile('./tasks.json', JSON.stringify([...completedTaskList, completedTask[0]]));
         res.send(completedTask)
       } 
@@ -94,7 +94,6 @@ app.patch('/tasks/:id', async (req, res) => {
     }
     
   } catch (error) {
-    /* Om något annat fel uppstår, skickas statuskod 500, dvs. ett generellt serverfel, tillsammans med information om felet.  */
     res.status(500).send({ error: error.stack });
   }
 });
