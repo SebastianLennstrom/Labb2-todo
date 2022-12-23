@@ -76,19 +76,18 @@ app.delete('/tasks/:id', async (req, res) => {
 
 app.patch('/tasks/:id', async (req, res) => {
   try {
+    const taskId = req.params.id;
     const newData = req.body
-    const id = req.params.id;
     const listBuffer = await fs.readFile('./tasks.json');
     const currentTasks = JSON.parse(listBuffer);
-    if (currentTasks.length > 0) {
-      let completedTask = currentTasks.filter((task) => task.id == id);
-      if(completedTask.length == 1){
+      let completedTask = currentTasks.filter((task) => task.id == taskId);
+      if(completedTask.length >= 1){
         Object.assign(completedTask[0], newData);
-        const completedTaskList = currentTasks.filter(task => task.id != id);
+        const completedTaskList = currentTasks.filter(task => task.id != taskId);
         await fs.writeFile('./tasks.json', JSON.stringify([...completedTaskList, completedTask[0]]));
         res.send(completedTask)
-      } 
-    } else {
+      } else {
+     
 
       res.status(404).send({ error: 'Ingen uppgift' });
     }
